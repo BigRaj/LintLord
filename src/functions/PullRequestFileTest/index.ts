@@ -16,7 +16,7 @@ export async function PullRequestFileTest(
     const { appId, installationId } = await loadGitHubSecrets();
     const token = await getInstallationAccessToken(appId, installationId);
 
-    const files = await getChangedTSFiles(token, "StatusAppJS", "StatusAppJS", prNumber);
+    const files = await getChangedTSFiles(token, "BigRaj", "LintLord", prNumber);
 
     context.log(`✅ Retrieved ${files.length} .ts files from PR #${prNumber}`);
 
