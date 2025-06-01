@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getInstallationAccessToken } from "../../auth/githubInstallToken";
-import { loadGitHubSecrets } from "../../auth/loadGitHubSecrets";
+import { loadGitHubSecrets } from "../../utils/loadGitHubSecrets";
 
 export async function GitHubPingTest(
   req: HttpRequest,

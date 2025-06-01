@@ -1,5 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { loadGitHubPem } from "../../auth/loadGitHubSecrets";
+import { loadGitHubPem } from "../../utils/loadGitHubSecrets";
 
 export async function KeyVaultTest(
   request: HttpRequest,

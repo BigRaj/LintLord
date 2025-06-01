@@ -6,16 +6,18 @@ const vaultUrl = "https://lintlordvault.vault.azure.net/";
 const client = new SecretClient(vaultUrl, credential);
 
 export async function loadGitHubSecrets() {
-  const [appId, privateKey, installationId] = await Promise.all([
+  const [appId, privateKey, installationId, openAiApiKey] = await Promise.all([
     client.getSecret("GITHUB-APP-ID"),
     client.getSecret("GITHUB-APP-PRIVATE-KEY"),
-    client.getSecret("GITHUB-INSTALLATION-ID")
+    client.getSecret("GITHUB-INSTALLATION-ID"),
+    client.getSecret("OPENAI-API-KEY")
   ]);
 
   return {
     appId: appId.value!,
     privateKey: privateKey.value!,
-    installationId: parseInt(installationId.value!)
+    installationId: parseInt(installationId.value!),
+    openAiApiKey: openAiApiKey.value!
   };
 }
 

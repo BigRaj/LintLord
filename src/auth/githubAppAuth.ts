@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { loadGitHubPem } from "./loadGitHubSecrets";
+import { loadGitHubPem } from "../utils/loadGitHubSecrets";
 
 export async function generateGitHubAppJWT(appId: string): Promise<string> {
   const privateKey = await loadGitHubPem();

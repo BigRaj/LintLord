@@ -15,43 +15,38 @@ export async function getChangedTSFiles(
   };
 
   // 1. Get changed files in the PR
-  const filesRes = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/pulls/${pull_number}/files`,
-    { headers }
-  );
+  const prFilesUrl = `https://api.github.com/repos/${owner}/${repo}/pulls/${pull_number}/files`;
 
-  if (!filesRes.ok) throw new Error(`Failed to fetch PR files: ${filesRes.statusText}`);
+  const filesRes = await fetch(prFilesUrl, { headers });
+  if (!filesRes.ok) {
+    throw new Error(`❌ Failed to fetch PR files: ${filesRes.status} ${filesRes.statusText}`);
+  }
 
   const files = await filesRes.json();
 
-const extensions = [".ts", ".tsx"];
-const tsFiles = files.filter(
-  (f: any) =>
-    f.status !== "removed" && extensions.some(ext => f.filename.endsWith(ext))
-);
-
-  // 2. Get PR details to extract the commit SHA
-  const prRes = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/pulls/${pull_number}`,
-    { headers }
+  const extensions = [".ts", ".tsx"];
+  const tsFiles = files.filter(
+    (f: any) =>
+      f.status !== "removed" &&
+      extensions.some(ext => f.filename.endsWith(ext)) &&
+      f.raw_url
   );
-  const pr = await prRes.json();
-  const sha = pr.head.sha;
 
-  // 3. Fetch raw content of each .ts file at the PR's commit
   const results: ChangedTSFile[] = [];
 
-  for (const path of tsFiles) {
-    const rawRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${sha}`,
-      { headers }
-    );
-    if (!rawRes.ok) continue;
+  for (const file of tsFiles) {
+    try {
+      const res = await fetch(file.raw_url, { headers });
+      if (!res.ok) {
+        console.warn(`⚠️ Failed to fetch raw file: ${file.filename} - ${res.status}`);
+        continue;
+      }
 
-    const file = await rawRes.json();
-    const content = Buffer.from(file.content, "base64").toString("utf8");
-
-    results.push({ filename: path, content });
+      const content = await res.text();
+      results.push({ filename: file.filename, content });
+    } catch (err) {
+      console.warn(`⚠️ Error fetching file ${file.filename}:`, err);
+    }
   }
 
   return results;
